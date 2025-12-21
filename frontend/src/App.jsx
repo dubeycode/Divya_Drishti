@@ -3,6 +3,7 @@ import { ThemeProvider } from "./content/theme-provider"
 import Layout from "./components/layout"
 import ThumbnailDashboard from "./pages/thumbnail_dashboard"
 import ThumbnailName from "./pages/thumbnailName"
+import Nav from "./components/nav"
 
 
 function App() {
@@ -11,8 +12,8 @@ function App() {
       <ThemeProvider defaultTheme="dark">
         <Layout>
           <Routes>
-          <Route path="/" element={<ThumbnailDashboard/>}/>
-          <Route path="/thumbnail/:thumbnailName" element={<ThumbnailName/>}/>
+            <Route path="/" element={<ThumbnailDashboard />} />
+            <Route path="/thumbnail/" element={<ThumbnailName />} />
           </Routes>
         </Layout>
       </ThemeProvider>

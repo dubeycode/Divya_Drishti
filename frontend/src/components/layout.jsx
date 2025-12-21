@@ -3,7 +3,7 @@ const Layout = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background to-muted">
       {/* header */}
-      <Nav />
+       <Nav />
       {/* main */}
       <main className="flex-1 container mx-auto px-4 py-8">
         {children}
