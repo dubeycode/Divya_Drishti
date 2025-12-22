@@ -3,7 +3,6 @@ import { ThemeProvider } from "./content/theme-provider"
 import Layout from "./components/layout"
 import ThumbnailDashboard from "./pages/thumbnail_dashboard"
 import ThumbnailName from "./pages/thumbnailName"
-import Nav from "./components/nav"
 
 
 function App() {

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Upload, Image as ImageIcon, X } from "lucide-react";
 
+
 const inputclass =
   // "bg-gray-400 max-w-3xs px-3 py-2 rounded outline-none focus:ring-2 focus:ring-black";
   "bg-gray-600 h-10 w-2xs flex mt-1.5 text-center rounded-2xl";
@@ -13,6 +14,7 @@ const ThumbnailName = () => {
   const [preview2, setPreview2] = useState<string | null>(null);
   const fileInputRef1 = useRef<HTMLInputElement>(null);
   const fileInputRef2 = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -63,41 +65,67 @@ const ThumbnailName = () => {
     }
   };
 
+// form data to json 
+
+  const [formData, setFormData] = useState({
+    catagory:"",
+    title: "",
+    description: "",
+    ratio:"",
+    ImageStyle:"",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(JSON.stringify(formData, null, 2));
+  };
+
+
+
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       <div className="flex flex-row justify-evenly">
         <div className="flex flex-col gap-5">
           <label>
             Purpose to make :
-            <select name="select Catogery" className={inputclass}>
+            <select name="catagory" onChange={handleChange}  className={inputclass}>
               <option value="">select Option</option>
               <option value="education">Education</option>
-              <option value="gameing">Gaming</option>
+              <option value="gameing">Gameing</option>
               <option value="vloging">vloging</option>
               <option value="motivation">Motivation</option>
             </select>
           </label>
           <label>Title</label>
           <textarea
-            name="postContent"
+            name="title"
             className={text_Area}
             rows={4}
             cols={40}
             required
+            onChange={handleChange} 
           />
           <label> Descraption</label>
           <textarea
-            name="postContent"
+            name="description"
             className={text_Area}
             rows={4}
             cols={40}
             required
+            onChange={handleChange} 
           />
           select the Ratio :
-          <select name="select Catogery" className={inputclass}>
+          <select name="ratio" onChange={handleChange}  className={inputclass}>
             <option value="">select Option</option>
-            <option value="youtube">16:9 /Youtube</option>
-            <option value="gameing">9:16 /YoutubeSorts</option>
+            <option value="16:9">Youtube</option>
+            <option value="9:16">YoutubeSorts</option>
           </select>
         </div>
         <div className="mt-2 flex flex-col gap-4">
