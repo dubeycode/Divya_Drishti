@@ -14,7 +14,7 @@ const ThumbnailName = () => {
   const [preview2, setPreview2] = useState<string | null>(null);
   const fileInputRef1 = useRef<HTMLInputElement>(null);
   const fileInputRef2 = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -82,9 +82,23 @@ const ThumbnailName = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(JSON.stringify(formData, null, 2));
+    try{
+      const res = await fetch("http://localhost:5000/generate",{
+        method:"POST",
+        headers:{
+        "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+    console.log("Response from backend:", data);
+    }
+    catch (error) {
+    console.error("Error:", error);
+    // console.log(JSON.stringify(formData, null, 2));
+    }
   };
 
 

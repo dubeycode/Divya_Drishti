@@ -3,7 +3,6 @@ import {
   SignedIn,
   SignedOut,
   SignInButton,
-  UserButton,
 } from "@clerk/clerk-react";
 
 const ThumbnailDashboard = () => {
@@ -22,21 +21,23 @@ const ThumbnailDashboard = () => {
 
         <div className="mt-5">
           <SignedOut>
-            <SignInButton>
-              <button className="bg-neutral-700 py-5 rounded-full h-14 w-xs hover:bg-gray-900 transition-all hover:text-2xl tracking-normal">
-                Click here
+            <SignInButton afterSignInUrl="/thumbnail">
+              <button className="bg-neutral-700 py-5 rounded-full h-14 w-xs hover:bg-gray-900 transition-all">
+                Get Started
               </button>
             </SignInButton>
           </SignedOut>
 
-          <div className="flex flex-col items-center gap-4">
+          <SignedIn>
             <button
-              onClick={() => {
-                navigate("/thumbnail");
-              }}
+              onClick={() => navigate("/thumbnail")}
+              className="bg-neutral-700 py-5 rounded-full h-14 w-xs hover:bg-gray-900 transition-all"
             >
+              Go to Dashboard
             </button>
-          </div>
+          </SignedIn>
+
+          <div className="flex flex-col items-center gap-4"></div>
         </div>
       </div>
     </div>
