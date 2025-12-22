@@ -68,7 +68,7 @@ const ThumbnailName = () => {
 // form data to json 
 
   const [formData, setFormData] = useState({
-    catagory:"",
+    Category:"",
     title: "",
     description: "",
     ratio:"",
@@ -92,12 +92,37 @@ const ThumbnailName = () => {
         },
         body: JSON.stringify(formData),
       });
+      
       const data = await res.json();
-    console.log("Response from backend:", data);
+      console.log("Response from backend:", data);
+      
+      // Clear form data after successful submission
+      if (res.ok) {
+        setFormData({
+          Category: "",
+          title: "",
+          description: "",
+          ratio: "",
+          ImageStyle: "",
+        });
+        
+        // Clear image previews
+        setPreview1(null);
+        setPreview2(null);
+        
+        // Clear file inputs
+        if (fileInputRef1.current) {
+          fileInputRef1.current.value = "";
+        }
+        if (fileInputRef2.current) {
+          fileInputRef2.current.value = "";
+        }
+      } else {
+        console.error("Backend error:", data.message || "Unknown error");
+      }
     }
     catch (error) {
-    console.error("Error:", error);
-    // console.log(JSON.stringify(formData, null, 2));
+      console.error("Error:", error);
     }
   };
 
@@ -109,7 +134,7 @@ const ThumbnailName = () => {
         <div className="flex flex-col gap-5">
           <label>
             Purpose to make :
-            <select name="catagory" onChange={handleChange}  className={inputclass}>
+            <select name="Category" value={formData.Category} onChange={handleChange}  className={inputclass}>
               <option value="">select Option</option>
               <option value="education">Education</option>
               <option value="gameing">Gameing</option>
@@ -120,6 +145,7 @@ const ThumbnailName = () => {
           <label>Title</label>
           <textarea
             name="title"
+            value={formData.title}
             className={text_Area}
             rows={4}
             cols={40}
@@ -129,6 +155,7 @@ const ThumbnailName = () => {
           <label> Descraption</label>
           <textarea
             name="description"
+            value={formData.description}
             className={text_Area}
             rows={4}
             cols={40}
@@ -136,7 +163,7 @@ const ThumbnailName = () => {
             onChange={handleChange} 
           />
           select the Ratio :
-          <select name="ratio" onChange={handleChange}  className={inputclass}>
+          <select name="ratio" value={formData.ratio} onChange={handleChange}  className={inputclass}>
             <option value="">select Option</option>
             <option value="16:9">Youtube</option>
             <option value="9:16">YoutubeSorts</option>
