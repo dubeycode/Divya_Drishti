@@ -3,6 +3,7 @@ import { ThemeProvider } from "./content/theme-provider"
 import Layout from "./components/layout"
 import ThumbnailDashboard from "./pages/thumbnail_dashboard"
 import ThumbnailName from "./pages/thumbnailName"
+import ThumbnailOutput from "./pages/thumbnail_output"
 
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
           <Routes>
             <Route path="/" element={<ThumbnailDashboard />} />
             <Route path="/thumbnail/" element={<ThumbnailName />} />
+            <Route path="/thumbnail/output" element={<ThumbnailOutput />} />
           </Routes>
         </Layout>
       </ThemeProvider>
