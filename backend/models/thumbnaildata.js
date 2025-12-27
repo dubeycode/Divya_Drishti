@@ -16,6 +16,9 @@ const  thumbnailDataSchema = mongoose.Schema({
    ratio:{
     type:String,
     required:true,
+   },
+   ImageStyle:{
+    type:String,
    }
 })
 

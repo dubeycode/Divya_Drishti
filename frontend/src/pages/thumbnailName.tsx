@@ -3,7 +3,6 @@ import { Upload, Image as ImageIcon, X } from "lucide-react";
 
 
 const inputclass =
-  // "bg-gray-400 max-w-3xs px-3 py-2 rounded outline-none focus:ring-2 focus:ring-black";
   "bg-gray-600 h-10 w-2xs flex mt-1.5 text-center rounded-2xl";
 
 const text_Area =
@@ -16,33 +15,23 @@ const ThumbnailName = () => {
   const fileInputRef2 = useRef<HTMLInputElement>(null);
 
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    setPreview: (preview: string | null) => void
-  ) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleDrop = (
     e: React.DragEvent<HTMLDivElement>,
     setPreview: (preview: string | null) => void,
-    inputRef: React.RefObject<HTMLInputElement | null>
+    inputRef: React.RefObject<HTMLInputElement | null>,
+    setFile: React.Dispatch<React.SetStateAction<File | null>>
   ) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith("image/")) {
+      setFile(file); // Store the actual file for backend
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+      
       if (inputRef.current) {
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
@@ -51,15 +40,18 @@ const ThumbnailName = () => {
     }
   };
 
+
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
 
   const removeImage = (
     setPreview: (preview: string | null) => void,
-    inputRef: React.RefObject<HTMLInputElement | null>
+    inputRef: React.RefObject<HTMLInputElement | null>,
+    setFile: React.Dispatch<React.SetStateAction<File | null>>
   ) => {
     setPreview(null);
+    setFile(null);
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -75,6 +67,12 @@ const ThumbnailName = () => {
     ImageStyle:"",
   });
 
+
+    const [thumbnailImage, setThumbnailImage] = useState<File | null>(null);
+    const [refImage, setRefImage] = useState<File | null>(null);
+
+
+  // Handler for text inputs (Category, title, description, ratio)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -82,50 +80,94 @@ const ThumbnailName = () => {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try{
-      const res = await fetch("http://localhost:5000/generate",{
-        method:"POST",
-        headers:{
-        "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      
-      const data = await res.json();
-      console.log("Response from backend:", data);
-      
-      // Clear form data after successful submission
-      if (res.ok) {
-        setFormData({
-          Category: "",
-          title: "",
-          description: "",
-          ratio: "",
-          ImageStyle: "",
-        });
-        
-        // Clear image previews
-        setPreview1(null);
-        setPreview2(null);
-        
-        // Clear file inputs
-        if (fileInputRef1.current) {
-          fileInputRef1.current.value = "";
-        }
-        if (fileInputRef2.current) {
-          fileInputRef2.current.value = "";
-        }
-      } else {
-        console.error("Backend error:", data.message || "Unknown error");
-      }
-    }
-    catch (error) {
-      console.error("Error:", error);
-    }
+  // Handler for file inputs
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setPreview: (preview: string | null) => void,
+    setFile: React.Dispatch<React.SetStateAction<File | null>>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setFile(file); // Store the actual file for backend
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate required fields
+    if (!formData.Category || !formData.title || !formData.description || !formData.ratio) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    if (!thumbnailImage) {
+      alert("Please upload a thumbnail image");
+      return;
+    }
+
+    try {
+      const data = new FormData();
+
+      // text fields
+      data.append("Category", formData.Category);
+      data.append("title", formData.title);
+      data.append("description", formData.description);
+      data.append("ratio", formData.ratio);
+
+      // images (Multer will read these)
+      if (thumbnailImage) data.append("thumbnail", thumbnailImage);
+      if (refImage) data.append("reference", refImage);
+
+      const res = await fetch("http://localhost:5000/generate", {
+        method: "POST",
+        body: data, // Don't set Content-Type header, browser will set it with boundary
+      });
+
+      if (!res.ok) {
+        let errorMessage = "Unknown error";
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.message || `Error: ${res.status} ${res.statusText}`;
+        } catch {
+          errorMessage = `Error: ${res.status} ${res.statusText}`;
+        }
+        alert(errorMessage);
+        return;
+      }
+
+      const result = await res.json();
+      console.log("Backend response:", result);
+
+      // Clear form after successful submission
+      setFormData({
+        Category: "",
+        title: "",
+        description: "",
+        ratio: "",
+        ImageStyle: "",
+      });
+
+      setThumbnailImage(null);
+      setRefImage(null);
+      setPreview1(null);
+      setPreview2(null);
+
+      if (fileInputRef1.current) fileInputRef1.current.value = "";
+      if (fileInputRef2.current) fileInputRef2.current.value = "";
+    } catch (error) {
+      console.error("Submit error:", error);
+      alert("Failed to submit form. Please try again.");
+    }
+  };
 
 
   return (
@@ -142,6 +184,7 @@ const ThumbnailName = () => {
               <option value="motivation">Motivation</option>
             </select>
           </label>
+
           <label>Title</label>
           <textarea
             name="title"
@@ -152,6 +195,7 @@ const ThumbnailName = () => {
             required
             onChange={handleChange} 
           />
+
           <label> Descraption</label>
           <textarea
             name="description"
@@ -162,6 +206,7 @@ const ThumbnailName = () => {
             required
             onChange={handleChange} 
           />
+
           select the Ratio :
           <select name="ratio" value={formData.ratio} onChange={handleChange}  className={inputclass}>
             <option value="">select Option</option>
@@ -169,6 +214,7 @@ const ThumbnailName = () => {
             <option value="9:16">YoutubeSorts</option>
           </select>
         </div>
+
         <div className="mt-2 flex flex-col gap-4">
           {/* First Image Upload */}
           <div className="relative">
@@ -200,7 +246,7 @@ const ThumbnailName = () => {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      removeImage(setPreview1, fileInputRef1);
+                      removeImage(setPreview1, fileInputRef1, setThumbnailImage);
                     }}
                     className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 transition-all opacity-0 group-hover:opacity-100"
                   >
@@ -231,7 +277,7 @@ const ThumbnailName = () => {
                 name="ImageStyle"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => handleFileChange(e, setPreview1)}
+                onChange={(e) => handleFileChange(e, setPreview1, setThumbnailImage )}
               />
             </div>
           </div>
@@ -251,7 +297,7 @@ const ThumbnailName = () => {
                 }
                 flex flex-col items-center justify-center cursor-pointer overflow-hidden group
               `}
-              onDrop={(e) => handleDrop(e, setPreview2, fileInputRef2)}
+              onDrop={(e) => handleDrop(e, setPreview2, fileInputRef2, setRefImage)}
               onDragOver={handleDragOver}
               onClick={() => fileInputRef2.current?.click()}
             >
@@ -266,7 +312,7 @@ const ThumbnailName = () => {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      removeImage(setPreview2, fileInputRef2);
+                      removeImage(setPreview2, fileInputRef2, setRefImage);
                     }}
                     className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 transition-all opacity-0 group-hover:opacity-100"
                   >
@@ -297,12 +343,14 @@ const ThumbnailName = () => {
                 name="ImageStyle"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => handleFileChange(e, setPreview2)}
+                onChange={(e) => handleFileChange(e, setPreview2,setRefImage)}
               />
             </div>
           </div>
         </div>
       </div>
+
+
       {/* submit div */}
       <div className="flex justify-center items-center mt-8 gap-6">
          <button 
