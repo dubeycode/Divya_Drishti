@@ -1,5 +1,4 @@
 const thumbnailData = require("../models/thumbnaildata")
-const path = require("path");
 
 exports.createThubnailData = async (req, res, next) => {
   try {
@@ -14,7 +13,6 @@ exports.createThubnailData = async (req, res, next) => {
 
     // Get file paths if they exist
     let thumbnailPath = "";
-    let referencePath = "";
 
     if (req.files) {
       if (req.files['thumbnail'] && req.files['thumbnail'][0]) {
