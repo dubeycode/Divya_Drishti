@@ -2,8 +2,8 @@ const thumbnailData = require("../models/thumbnaildata")
 
 exports.createThubnailData = async (req, res, next) => {
   try {
-    console.log("Body:", req.body);
-    console.log("Files:", req.files);
+    // console.log("Body:", req.body);
+    // console.log("Files:", req.files);
 
     const { Category, title, description, ratio } = req.body;
 
