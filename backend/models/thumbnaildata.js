@@ -19,6 +19,9 @@ const  thumbnailDataSchema = mongoose.Schema({
    },
    ImageStyle:{
     type:String,
+   },
+   referenceImage:{
+    type:String,
    }
 })
 
