@@ -12,6 +12,7 @@ dotenv.config();
 // local modules
 const errorController = require("./controllers/error")
 const genrateData = require("./routes/generateData")
+const thumbnailRoutes = require("./routes/thumbnail")
 
 const app = express();
 app.use(cors({
@@ -34,6 +35,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 
 app.use("/generate", genrateData);
+app.use("/api", thumbnailRoutes);
 
 // 404
 app.use(errorController.pageNoteFound);

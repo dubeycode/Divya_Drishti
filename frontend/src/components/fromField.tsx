@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Upload, Image as ImageIcon, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 
 const inputclass =
@@ -9,7 +10,8 @@ const text_Area =
   "bg-gray-600 flex mt-1.5  w-2xs rounded-2xl  p-3 resize-none block";
 
 const FormField = () => {
-   const [preview1, setPreview1] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [preview1, setPreview1] = useState<string | null>(null);
   const [preview2, setPreview2] = useState<string | null>(null);
   const fileInputRef1 = useRef<HTMLInputElement>(null);
   const fileInputRef2 = useRef<HTMLInputElement>(null);
@@ -127,7 +129,7 @@ const FormField = () => {
       if (thumbnailImage) data.append("thumbnail", thumbnailImage);
       if (refImage) data.append("reference", refImage);
 
-      const res = await fetch("http://localhost:5000/generate", {
+      const res = await fetch("https://divya-drishti-ioig.onrender.com/generate", {
         method: "POST",
         body: data, // Don't set Content-Type header, browser will set it with boundary
       });
@@ -146,6 +148,28 @@ const FormField = () => {
 
       const result = await res.json();
       console.log("Backend response:", result);
+
+      // Store reference image in sessionStorage temporarily since File objects can't be passed via state
+      const navigateToOutput = () => {
+        navigate("/thumbnail/output", {
+          state: {
+            formData: formData,
+          },
+        });
+      };
+
+      if (refImage) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          sessionStorage.setItem("referenceImageData", reader.result as string);
+          sessionStorage.setItem("referenceImageName", refImage.name);
+          navigateToOutput();
+        };
+        reader.readAsDataURL(refImage);
+      } else {
+        // Navigate to output page with form data for thumbnail generation
+        navigateToOutput();
+      }
 
       // Clear form after successful submission
       setFormData({
@@ -230,7 +254,7 @@ const FormField = () => {
                 }
                 flex flex-col items-center justify-center cursor-pointer overflow-hidden group
               `}
-              onDrop={(e) => handleDrop(e, setPreview1, fileInputRef1)}
+              onDrop={(e) => handleDrop(e, setPreview1, fileInputRef1, setThumbnailImage)}
               onDragOver={handleDragOver}
               onClick={() => fileInputRef1.current?.click()}
             >
