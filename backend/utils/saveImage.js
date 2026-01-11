@@ -8,7 +8,7 @@ async function saveImage(base64) {
 
   fs.writeFileSync(filePath, buffer);
 
-  return `http://localhost:5000/uploads/${fileName}`;
+  return `https://divya-drishti-lemon.vercel.app/:5000/uploads/${fileName}`;
 }
 
 module.exports = saveImage;

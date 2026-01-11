@@ -16,7 +16,7 @@ const thumbnailRoutes = require("./routes/thumbnail")
 
 const app = express();
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "https://divya-drishti-lemon.vercel.app/",
   methods: ["GET", "POST"],
 }));
 
